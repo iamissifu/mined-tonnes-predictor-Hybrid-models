@@ -1,0 +1,180 @@
+import React from 'react'
+import { For, Stack, Table } from "@chakra-ui/react"
+import { MdDelete } from "react-icons/md";
+import { FaRegEdit } from "react-icons/fa";
+import { HStack } from "@chakra-ui/react";
+import { useMutation } from '@tanstack/react-query';
+import { baseUrl } from '../../../constants/global-variable';
+import { toast } from 'react-hot-toast';
+import { queryClient } from '../../../utils/queryClient';
+import InputEmployee from './InputEmployee.jsx';
+import { Dialog } from '@chakra-ui/react';
+
+const EmployeeTable = ({data}) => {
+    if (!data.length){
+        return <h1>You don't have any employee data available</h1>
+    }
+  const mutation = useMutation({
+    mutationFn: async (id) => {
+        const response = await fetch(baseUrl + '/' + id,{
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+
+        });
+        const data = await response.json();
+        if (!response.ok){
+            throw new Error(data.error);
+        }
+        return data;
+    },
+    onError: (error) => {
+        console.log(error.response);
+       // toast.error(error.response)
+    },
+    onSuccess: () => {
+        toast.success("Employee details deleted successfully!");
+        queryClient.invalidateQueries({queryKey: ["employee_details"]});
+    },
+    
+  });
+  return (
+    <Stack gap="10">
+    <Table.Root size="md" variant="outline">
+      <Table.Header>
+        <Table.Row>
+          <Table.ColumnHeader>ID</Table.ColumnHeader>
+          <Table.ColumnHeader>Name</Table.ColumnHeader>
+          <Table.ColumnHeader>Email</Table.ColumnHeader>
+          <Table.ColumnHeader>Age</Table.ColumnHeader>
+          <Table.ColumnHeader>Role</Table.ColumnHeader>
+          <Table.ColumnHeader>Salary</Table.ColumnHeader>
+          <Table.ColumnHeader>Actions</Table.ColumnHeader>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {data.map((item) => (
+          <Table.Row key={item.id}>
+            <Table.Cell>{item.id}</Table.Cell>
+            <Table.Cell>{item.name}</Table.Cell>
+            <Table.Cell>{item.email}</Table.Cell>
+            <Table.Cell>{item.age}</Table.Cell>
+            <Table.Cell>{item.role}</Table.Cell>
+            <Table.Cell>{item.salary}</Table.Cell>
+
+            <Table.Cell>
+            <HStack gap="3">
+                <MdDelete size={20} className="icon" onClick={()=>mutation.mutate(item.id)}/>
+                
+              <InputEmployee data={item} type="update"> 
+                <Dialog.Trigger asChild>
+                  <FaRegEdit size={20} className="icon" />
+                </Dialog.Trigger>
+              </InputEmployee>
+              
+            </HStack>
+
+           
+            </Table.Cell>
+
+
+
+
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table.Root>
+
+
+</Stack> 
+  );
+};
+
+export default EmployeeTable;
+
+
+
+// const items = [
+//     {
+//       "id": 1,
+//       "name": "Alice Johnson",
+//       "email": "alice.johnson@example.com",
+//       "age": 28,
+//       "role": "Developer",
+//       "salary": 52000.00
+//     },
+//     {
+//       "id": 2,
+//       "name": "Bob Mensah",
+//       "email": "bob.mensah@example.com",
+//       "age": 34,
+//       "role": "Manager",
+//       "salary": 73000.50
+//     },
+//     {
+//       "id": 3,
+//       "name": "Clara Agyeman",
+//       "email": "clara.agyeman@example.com",
+//       "age": 25,
+//       "role": "Intern",
+//       "salary": 18000.00
+//     },
+//     {
+//       "id": 4,
+//       "name": "David Ofori",
+//       "email": "david.ofori@example.com",
+//       "age": 29,
+//       "role": "Developer",
+//       "salary": 55000.00
+//     },
+//     {
+//       "id": 5,
+//       "name": "Evelyn Baah",
+//       "email": "evelyn.baah@example.com",
+//       "age": 31,
+//       "role": "HR",
+//       "salary": 47000.75
+//     },
+//     {
+//       "id": 6,
+//       "name": "Frank Owusu",
+//       "email": "frank.owusu@example.com",
+//       "age": 23,
+//       "role": "Intern",
+//       "salary": 20000.00
+//     },
+//     {
+//       "id": 7,
+//       "name": "Grace Adjei",
+//       "email": "grace.adjei@example.com",
+//       "age": 27,
+//       "role": "Developer",
+//       "salary": 51000.00
+//     },
+//     {
+//       "id": 8,
+//       "name": "Henry Asare",
+//       "email": "henry.asare@example.com",
+//       "age": 40,
+//       "role": "Manager",
+//       "salary": 88000.00
+//     },
+//     {
+//       "id": 9,
+//       "name": "Irene Dapaah",
+//       "email": "irene.dapaah@example.com",
+//       "age": 22,
+//       "role": "Sales",
+//       "salary": 43000.00
+//     },
+//     {
+//       "id": 10,
+//       "name": "Jacob Nketiah",
+//       "email": "jacob.nketiah@example.com",
+//       "age": 35,
+//       "role": "HR",
+//       "salary": 76000.00
+//     }
+//   ];
+  
